@@ -88,7 +88,7 @@ def banner():
                 /_/        
 
 Because Exporting from Nessus is painful 
-Version 0.1a
+Version 0.1aa
 @rd_pentest
 
 """)
@@ -107,6 +107,7 @@ def main():
 	p.add_argument("-out", "--output", dest="output", default="",help="Enter filename to write to ")
 	p.add_argument("-ms", "--metasploit", dest="metasploit", default="",help="Show items exploitable with Metasploit")
 	p.add_argument("-cp", "--compliance", dest="compliance", default="",help="Pull out failed compliance checks")
+	p.add_argument("-pocs", "--pocs", dest="pocs", default="",help="Commands to verify findings and gather additional screenshots")
 
 	args = p.parse_args()
 
@@ -186,12 +187,12 @@ def main():
 		for vulner_id in vulners:
 
 			#Parse for Metasploitable issues
-			if args.metasploit!="" and args.compliance=="":
-				try:
-					if (vulners[vulner_id]["metasploit_name"])!="":
-						devices.append((vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["metasploit_name"]))
-				except:
-					pass
+
+			try:
+				if (vulners[vulner_id]["metasploit_name"])!="":
+					devices.append((vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["metasploit_name"]))
+			except:
+				pass
 
 
 		#Clean up device list to that all items are unique
@@ -281,6 +282,115 @@ def main():
 
 			print("[*] Writing File")
 			print("[!] Important - file "+args.output+" is TAB delimited not comma delimited")
+
+		sys.exit()
+
+
+	#Parse for poc
+	if args.pocs!="":
+		#Open Nessus file to parse
+		file_path = args.filename
+		f = open(file_path, 'r')
+		xml_content = f.read()
+		f.close()
+
+		#Call Nessus vulnerability parse function
+		vulners = get_vulners_from_xml(xml_content)
+
+		#print(vulners)
+
+		#Setup devices list variable
+		devices=[]
+
+		devices.append("Vulnerability,IP,Port,POC")
+
+		#Cycle through all vulnerabilities
+		for vulner_id in vulners:
+
+			#Parse for poc
+			#ToDo
+			#msfconsole -n -q -x “use gather/search_email_collector;set domain target.com;run;exit”
+
+			try:
+				if (vulners[vulner_id]["pluginID"])=="10595":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/gather/enum_dns or dig e.g. dig axfr zonetransfer.me @nsztm1.digi.ninja"))	
+				if (vulners[vulner_id]["pluginID"])=="10882":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script=sshv1.nse -sV -sC "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="11213":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script http-methods "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="12217":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap -sU -p 53 --script dns-cache-snoop.nse --script-args 'dns-cache-snoop.mode=nonrecursive' 1.2.3.4 "+vulners[vulner_id]["host-ip"]))		
+				if (vulners[vulner_id]["pluginID"])=="15984":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/nfs/nfsmount"))		
+				if (vulners[vulner_id]["pluginID"])=="18405":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="20007":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
+				if (vulners[vulner_id]["pluginID"])=="30218":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="41028":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/snmp/snmp_login or auxiliary/scanner/snmp/snmp_enum")) 					
+				if (vulners[vulner_id]["pluginID"])=="42263":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap "+vulners[vulner_id]["host-ip"]+" -p"+vulners[vulner_id]["port"])) 
+				if (vulners[vulner_id]["pluginID"])=="42873":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))	
+				if (vulners[vulner_id]["pluginID"])=="51192":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
+				if (vulners[vulner_id]["pluginID"])=="57608":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script smb-security-mode.nse -p445 "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="57690":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))				
+				if (vulners[vulner_id]["pluginID"])=="58453":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="62694":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"ike-scan "+vulners[vulner_id]["host-ip"]+" -M -A --id=vpn"))	
+				if (vulners[vulner_id]["pluginID"])=="68931":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/ipmi/ipmi_cipher_zero "))
+				if (vulners[vulner_id]["pluginID"])=="69551":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))	
+				if (vulners[vulner_id]["pluginID"])=="70658":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script ssh2-enum-algos "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="71049":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script ssh2-enum-algos "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="77026":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/http/owa_iis_internal_ip"))	
+				if (vulners[vulner_id]["pluginID"])=="80101":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/ipmi/ipmi_dumphashes or auxiliary/scanner/ipmi/ipmi_version"))	
+				if (vulners[vulner_id]["pluginID"])=="83875":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))	
+				if (vulners[vulner_id]["pluginID"])=="97861":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sU -pU:123 -Pn -n --script=ntp-monlist "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="100464":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/smb/smb1"))	
+				if (vulners[vulner_id]["pluginID"])=="104743":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
+				if (vulners[vulner_id]["pluginID"])=="149902":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/linux/http/vmware_vcenter_vsan_health_rce"))
+				if (vulners[vulner_id]["pluginID"])=="146825":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/multi/http/vmware_vcenter_uploadova_rce"))				
+				if (vulners[vulner_id]["pluginID"])=="146826":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/multi/http/vmware_vcenter_uploadova_rce"))
+				if (vulners[vulner_id]["pluginID"])=="150163":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/linux/http/vmware_vcenter_vsan_health_rce"))
+				if (vulners[vulner_id]["pluginID"])=="153953":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script ssh2-enum-algos "+vulners[vulner_id]["host-ip"]))	
+			except:
+				pass
+
+		#Output to file if required
+		if args.output!="":
+			# open the file in the write mode
+			with open(args.output, 'w') as f:
+				for device in devices:
+					f.write(device)
+					f.write('\n')
+
+			print("[*] Written File " +args.output)
+
+		if args.output=="":
+			#Print output to screen
+			for device in devices:
+				print(device)
 
 		sys.exit()
 
