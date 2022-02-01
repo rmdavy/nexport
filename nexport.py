@@ -88,7 +88,7 @@ def banner():
                 /_/        
 
 Because Exporting from Nessus is painful 
-Version 0.1aa
+Version 0.1ab
 @rd_pentest
 
 """)
@@ -312,12 +312,28 @@ def main():
 			#msfconsole -n -q -x “use gather/search_email_collector;set domain target.com;run;exit”
 
 			try:
+				if (vulners[vulner_id]["pluginID"])=="10043":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/chargen/chargen_probe")) 
+				if (vulners[vulner_id]["pluginID"])=="10079":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script ftp-brute -p 21 "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="10081":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use use auxiliary/scanner/portscan/ftpbounce")) 
+				if (vulners[vulner_id]["pluginID"])=="10092":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -A -p 21 "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="10437":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/nfs/nfsmount"))	
+				if (vulners[vulner_id]["pluginID"])=="10539":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sU -p 53 --script=dns-recursion "+vulners[vulner_id]["host-ip"]))	
 				if (vulners[vulner_id]["pluginID"])=="10595":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/gather/enum_dns or dig e.g. dig axfr zonetransfer.me @nsztm1.digi.ninja"))	
 				if (vulners[vulner_id]["pluginID"])=="10882":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script=sshv1.nse -sV -sC "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="11213":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script http-methods "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="11356":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/nfs/nfsmount"))	
+				if (vulners[vulner_id]["pluginID"])=="11819":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap -sU -p 69 --script tftp-enum.nse --script-args tftp-enum.filelist=customlist.txt "+vulners[vulner_id]["host-ip"]))	
 				if (vulners[vulner_id]["pluginID"])=="12217":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap -sU -p 53 --script dns-cache-snoop.nse --script-args 'dns-cache-snoop.mode=nonrecursive' 1.2.3.4 "+vulners[vulner_id]["host-ip"]))		
 				if (vulners[vulner_id]["pluginID"])=="15984":
@@ -326,15 +342,27 @@ def main():
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))	
 				if (vulners[vulner_id]["pluginID"])=="20007":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
+				if (vulners[vulner_id]["pluginID"])=="26920":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script smb-enum-users.nse -p445 "+vulners[vulner_id]["host-ip"]))					
 				if (vulners[vulner_id]["pluginID"])=="30218":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="34477":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script smb-vuln-ms08-067.nse -p445 "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="40887":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use exploit/windows/smb/ms09_050_smb2_negotiate_func_index")) 	
 				if (vulners[vulner_id]["pluginID"])=="41028":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/snmp/snmp_login or auxiliary/scanner/snmp/snmp_enum")) 					
+				if (vulners[vulner_id]["pluginID"])=="42256":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/nfs/nfsmount")) 
 				if (vulners[vulner_id]["pluginID"])=="42263":
-					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap "+vulners[vulner_id]["host-ip"]+" -p"+vulners[vulner_id]["port"])) 
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script telnet-encryption "+vulners[vulner_id]["host-ip"]+" -p"+vulners[vulner_id]["port"])) 
+				if (vulners[vulner_id]["pluginID"])=="42411":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script smb-enum-shares.nse -p445 "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="42873":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))	
 				if (vulners[vulner_id]["pluginID"])=="51192":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
+				if (vulners[vulner_id]["pluginID"])=="57582":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
 				if (vulners[vulner_id]["pluginID"])=="57608":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script smb-security-mode.nse -p445 "+vulners[vulner_id]["host-ip"]))
@@ -342,6 +370,8 @@ def main():
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))				
 				if (vulners[vulner_id]["pluginID"])=="58453":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p 3389 --script rdp-enum-encryption "+vulners[vulner_id]["host-ip"]))	
+				if (vulners[vulner_id]["pluginID"])=="58987":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sV --script=http-php-version "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="62694":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"ike-scan "+vulners[vulner_id]["host-ip"]+" -M -A --id=vpn"))	
 				if (vulners[vulner_id]["pluginID"])=="68931":
@@ -358,12 +388,18 @@ def main():
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/ipmi/ipmi_dumphashes or auxiliary/scanner/ipmi/ipmi_version"))	
 				if (vulners[vulner_id]["pluginID"])=="83875":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))	
+				if (vulners[vulner_id]["pluginID"])=="97833":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p445 --script smb-vuln-ms17-010 "+vulners[vulner_id]["host-ip"]))	
 				if (vulners[vulner_id]["pluginID"])=="97861":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sU -pU:123 -Pn -n --script=ntp-monlist "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="97994":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sV --script=http-headers "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="100464":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/smb/smb1"))	
 				if (vulners[vulner_id]["pluginID"])=="104743":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))
+				if (vulners[vulner_id]["pluginID"])=="105486":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: use auxiliary/scanner/vmware/esx_fingerprint"))	
 				if (vulners[vulner_id]["pluginID"])=="149902":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/linux/http/vmware_vcenter_vsan_health_rce"))
 				if (vulners[vulner_id]["pluginID"])=="146825":
