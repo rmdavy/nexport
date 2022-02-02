@@ -2,6 +2,8 @@ from collections import OrderedDict
 from lxml import etree
 import os, signal, sys
 import argparse
+import xlsxwriter
+from pathlib import Path
 
 #Parsing function taken from
 #https://avleonov.com/2020/03/09/parsing-nessus-v2-xml-reports-with-python/
@@ -88,7 +90,7 @@ def banner():
                 /_/        
 
 Because Exporting from Nessus is painful 
-Version 0.1ab
+Version 0.1ac
 @rd_pentest
 
 """)
@@ -155,15 +157,21 @@ def main():
 
 			#If output variable is not empty write to file
 			if args.output!="":
+				if args.output.endswith(('.csv'))==False:
+					args.output = args.output+ ".csv"
+
 				# open the file in the write mode
 				with open(args.output, 'w') as f:
 					for device in devices:
 						f.write(device)
 						f.write('\n')
 
-		#Print output to screen
-		for device in devices:
-			print(device)
+			print("[*] Written File "+args.output)
+
+		if args.output=="":
+			#Print output to screen
+			for device in devices:
+				print(device)
 	
 		sys.exit()
 
@@ -200,20 +208,27 @@ def main():
 
 		#If output variable is not empty write to file
 		if args.output!="":
+			if args.output.endswith(('.csv'))==False:
+				args.output = args.output+ ".csv"
+			
 			# open the file in the write mode
 			with open(args.output, 'w') as f:
 				for device in devices:
 					f.write(device)
 					f.write('\n')
 
-		#Print output to screen
-		for device in devices:
-			print(device)
+			print("[*] Written File "+args.output)
+
+		if args.output=="":
+			#Print output to screen
+			for device in devices:
+				print(device)
 
 		sys.exit()
 
 	#Pull out failed compliance issues from nessus file
 	if args.compliance!="":
+		vulner_id=""
 		#Open Nessus file to parse
 		file_path = args.filename
 		f = open(file_path, 'r')
@@ -223,15 +238,14 @@ def main():
 		#Call Nessus vulnerability parse function
 		vulners = get_vulners_from_xml(xml_content)
 
-		#print(vulners)
-
 		#Setup devices list variable
 		devices=[]
 
-		devices.append("Compliance Check Name\tCompliance Result\tAudit Type\tCompliance Info\tCompliance Solution")
-
+		cpvulnerabilities = dict()
 		#Cycle through all vulnerabilities
+		
 		for vulner_id in vulners:
+			cvulner_struct = dict()
 
 			if args.compliance!="":
 				try:
@@ -255,36 +269,63 @@ def main():
 							print(vulners[vulner_id]["{http://www.nessus.org/cm}compliance-solution"])
 
 						cCheck=str(vulners[vulner_id]["{http://www.nessus.org/cm}compliance-check-name"])
+						#print(cCheck)
 						cResult=str(vulners[vulner_id]["{http://www.nessus.org/cm}compliance-result"])
 						cAudit=str(vulners[vulner_id]["{http://www.nessus.org/cm}compliance-audit-file"])
 						cInfo=str(vulners[vulner_id]["{http://www.nessus.org/cm}compliance-info"])
 						cSolution=str(vulners[vulner_id]["{http://www.nessus.org/cm}compliance-solution"])
 
+						cvulner_struct["cCheck"] = vulners[vulner_id]["{http://www.nessus.org/cm}compliance-check-name"]
+						cvulner_struct['cResult'] = cResult
+						cvulner_struct['cAudit'] = cAudit
+						cvulner_struct['cInfo'] = cInfo
+						cvulner_struct['cSolution'] = cSolution
 						
-						cAudit=cAudit.replace("'",'')
-						cAudit=cAudit.replace('[','')
-						cAudit=cAudit.replace(']','')
-
-					
-						devices.append(cCheck+"\t"+cResult+"\t"+cAudit+"\t"+cInfo+"\t"+cSolution)
+						if not vulner_id in cpvulnerabilities:
+							cpvulnerabilities[vulner_id] = cvulner_struct
 
 				except:
 					pass
 
-
 		#Output to file if required
 		if args.output!="":
-			# open the file in the write mode
-			with open(args.output, 'w') as f:
-				for device in devices:
-					f.write(device)
-					f.write('\n')
 
-			print("[*] Writing File")
-			print("[!] Important - file "+args.output+" is TAB delimited not comma delimited")
+			#Change last chars from .csv to .xlsx to ensure correct filetype
+			if args.output.endswith(('.csv')):
+				args.output = args.output.replace(".csv", ".xlsx")
+			#If fileextension missing add .xlsx
+			if args.output.endswith(('.xlsx'))==False:
+				args.output = args.output+ ".xlsx"
+
+			workbook = xlsxwriter.Workbook(args.output)
+			worksheet = workbook.add_worksheet("CIS Compliance Failures")
+
+			row = 0
+			col = 0
+			bold = workbook.add_format({'bold': True})
+
+			#Finding*	Description*	Recommendation*	CVSS	CVE Ref*	Thread Level Category
+			worksheet.write(row, col,"Compliance Check Name",bold)
+			worksheet.write(row, col+1,"Compliance Result",bold)
+			worksheet.write(row, col+2,"Audit Type",bold)
+			worksheet.write(row, col+3,"Compliance Info",bold)
+			worksheet.write(row, col+4,"Compliance Solution",bold)
+
+			row=1
+
+			for vulner_id in cpvulnerabilities:
+				worksheet.write(row, col,(cpvulnerabilities[vulner_id]["cCheck"]))
+				worksheet.write(row, col+1,(cpvulnerabilities[vulner_id]["cResult"]))
+				worksheet.write(row, col+2,(cpvulnerabilities[vulner_id]["cAudit"]))
+				worksheet.write(row, col+3,(cpvulnerabilities[vulner_id]["cInfo"]))
+				worksheet.write(row, col+4,(cpvulnerabilities[vulner_id]["cSolution"]))
+
+				row += 1
+
+			workbook.close()
+			print("[*] Written File "+args.output)
 
 		sys.exit()
-
 
 	#Parse for poc
 	if args.pocs!="":
@@ -296,8 +337,6 @@ def main():
 
 		#Call Nessus vulnerability parse function
 		vulners = get_vulners_from_xml(xml_content)
-
-		#print(vulners)
 
 		#Setup devices list variable
 		devices=[]
@@ -415,6 +454,9 @@ def main():
 
 		#Output to file if required
 		if args.output!="":
+			if args.output.endswith(('.csv'))==False:
+				args.output = args.output+ ".csv"
+
 			# open the file in the write mode
 			with open(args.output, 'w') as f:
 				for device in devices:
@@ -430,12 +472,10 @@ def main():
 
 		sys.exit()
 
-
 #Routine handles Crtl+C gracefully
 def signal_handler(signal, frame):
 	print ("\nCtrl+C pressed.. exiting...")
 	sys.exit()
-
 
 #Loads up main
 if __name__ == '__main__':
