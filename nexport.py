@@ -90,7 +90,7 @@ def banner():
                 /_/        
 
 Because Exporting from Nessus is painful 
-Version 0.1ac
+Version 0.1ad
 @rd_pentest
 
 """)
@@ -107,11 +107,68 @@ def main():
 	p.add_argument("-f", "--filename", dest="filename", help="Enter name of nessus file to parse")
 	p.add_argument("-id", "--plugin_id", dest="plugin_id", default="",help="Enter plugin id for specific id, or all for all plugins")
 	p.add_argument("-out", "--output", dest="output", default="",help="Enter filename to write to ")
+	p.add_argument("-nv", "--nessusvulns", dest="nessusvulns", default="",help="Show Nessus Vulnerabilities and PluginID")
 	p.add_argument("-ms", "--metasploit", dest="metasploit", default="",help="Show items exploitable with Metasploit")
 	p.add_argument("-cp", "--compliance", dest="compliance", default="",help="Pull out failed compliance checks")
 	p.add_argument("-pocs", "--pocs", dest="pocs", default="",help="Commands to verify findings and gather additional screenshots")
+	p.add_argument("-cat", "--cat", dest="cat", default="",help="Extract CA Issuer from SSL Certificate Cannot Be Trusted (PluginID 51192) useful for validatation when client has own CA")
 
 	args = p.parse_args()
+
+	#Parse plugins for IP, Ports, Services, Hostnames
+	if args.nessusvulns!="":
+		#Open Nessus file to parse
+		file_path = args.filename
+		f = open(file_path, 'r')
+		xml_content = f.read()
+		f.close()
+
+		#Call Nessus vulnerability parse function
+		vulners = get_vulners_from_xml(xml_content)
+
+		#print(vulners)
+
+		#Setup devices list variable
+		devices=[]
+
+		#Cycle through all vulnerabilities
+		for vulner_id in vulners:
+			#try:
+				#print (vulners[vulner_id]["pluginID"])
+				#print(vulners[vulner_id]["host-ip"],",",vulners[vulner_id]["protocol"], vulners[vulner_id]["port"], vulners[vulner_id]["svc_name"],vulners[vulner_id]["host-fqdn"])
+			devices.append(vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["pluginID"])
+			#except:
+				#print(vulners[vulner_id]["host-ip"],",",vulners[vulner_id]["protocol"], vulners[vulner_id]["port"], vulners[vulner_id]["svc_name"])
+			#	devices.append(vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["pluginID"].upper())
+
+		devices=list(OrderedDict.fromkeys(devices))
+		
+		#Output to file if required
+		if args.output!="":
+
+			#Clean up device list to that all items are unique
+			devices=list(OrderedDict.fromkeys(devices))
+
+			#If output variable is not empty write to file
+			if args.output!="":
+				if args.output.endswith(('.csv'))==False:
+					args.output = args.output+ ".csv"
+
+				# open the file in the write mode
+				with open(args.output, 'w') as f:
+					for device in devices:
+						f.write(device)
+						f.write('\n')
+
+			print("[*] Written File "+args.output)
+
+		if args.output=="":
+			#Print output to screen
+			for device in devices:
+				print(device)
+	
+		sys.exit()
+
 
 	#Parse plugins for IP, Ports, Services, Hostnames
 	if args.plugin_id!="":
@@ -173,6 +230,62 @@ def main():
 			for device in devices:
 				print(device)
 	
+		sys.exit()
+
+	#Parse CA for issuer name
+	if args.cat!="":
+		#Open Nessus file to parse
+		file_path = args.filename
+		f = open(file_path, 'r')
+		xml_content = f.read()
+		f.close()
+
+		#Call Nessus vulnerability parse function
+		vulners = get_vulners_from_xml(xml_content)
+
+		#print(vulners)
+
+		#Setup devices list variable
+		devices=[]
+		devices.append("IP"+","+"Port"+","+"CA Issuer")
+		#Cycle through all vulnerabilities
+		for vulner_id in vulners:
+
+			#Parse for Metasploitable issues
+			if(vulners[vulner_id]["pluginID"])=="51192":
+				try:
+
+					output=str((vulners[vulner_id]["plugin_output"]))
+					#print(output)
+					issuer=output[output.find("Issuer"):-4]
+					#print(issuer)
+					issuer=issuer.replace(", ", " ")
+					devices.append((vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+issuer))
+				except:
+					pass
+
+
+		#Clean up device list to that all items are unique
+		devices=list(OrderedDict.fromkeys(devices))
+
+		#If output variable is not empty write to file
+		if args.output!="":
+			if args.output.endswith(('.csv'))==False:
+				args.output = args.output+ ".csv"
+			
+			# open the file in the write mode
+			with open(args.output, 'w') as f:
+				for device in devices:
+					f.write(device)
+					f.write('\n')
+
+			print("[*] Written File "+args.output)
+
+		if args.output=="":
+			#Print output to screen
+			for device in devices:
+				print(device)
+
 		sys.exit()
 
 	#Parse for metasploit modules
