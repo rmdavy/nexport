@@ -540,10 +540,12 @@ def main():
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: auxiliary/scanner/ipmi/ipmi_dumphashes or auxiliary/scanner/ipmi/ipmi_version"))	
 				if (vulners[vulner_id]["pluginID"])=="83875":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo sslscan "+vulners[vulner_id]["host-ip"]+":"+vulners[vulner_id]["port"]))	
+				if (vulners[vulner_id]["pluginID"])=="84502":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p "+vulners[vulner_id]["port"]+" --script http-security-headers "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="97833":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -p445 --script smb-vuln-ms17-010 "+vulners[vulner_id]["host-ip"]))	
 				if (vulners[vulner_id]["pluginID"])=="97861":
-					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sU -pU:123 -Pn -n --script=ntp-monlist "+vulners[vulner_id]["host-ip"]))
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap -sU -pU:123 -Pn -n --script=ntp-info "+vulners[vulner_id]["host-ip"])) #ntp-info
 				if (vulners[vulner_id]["pluginID"])=="97994":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap -sV --script=http-headers "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="100464":
@@ -558,10 +560,14 @@ def main():
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/multi/http/vmware_vcenter_uploadova_rce"))				
 				if (vulners[vulner_id]["pluginID"])=="146826":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/multi/http/vmware_vcenter_uploadova_rce"))
+				if (vulners[vulner_id]["pluginID"])=="150154":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap -sV -p"+vulners[vulner_id]["port"]+" "+vulners[vulner_id]["host-ip"]))
 				if (vulners[vulner_id]["pluginID"])=="150163":
 					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"Metasploit: exploit/linux/http/vmware_vcenter_vsan_health_rce"))
 				if (vulners[vulner_id]["pluginID"])=="153953":
-					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script ssh2-enum-algos "+vulners[vulner_id]["host-ip"]))	
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"sudo nmap --script ssh2-enum-algos "+vulners[vulner_id]["host-ip"]))
+				if (vulners[vulner_id]["pluginID"])=="155790":
+					devices.append((vulners[vulner_id]["pluginName"]+","+vulners[vulner_id]["host-ip"]+","+vulners[vulner_id]["port"]+","+"nmap --script vmware-version -p443 "+vulners[vulner_id]["host-ip"]+" or Metasploit: use auxiliary/scanner/vmware/esx_fingerprint"))	
 			except:
 				pass
 
